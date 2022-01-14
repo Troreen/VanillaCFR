@@ -101,28 +101,15 @@ namespace tarik
         }
 
         // Counterfactual regret minimization iteration
-        private double cfr(int[] cards, string history, double p0, double p1)
+        private double cfr(game, double p0, double p1)
         {
-            int plays = history.Length;
-            int player = plays % 2;
-            int opponent = 1 - player;
-
-            // Return payoff for terminal states
-            if (plays > 1)                                                            // We check if both players got to make an action         
+            int cur_player = game current_player();
+            if (game.isTerminal()) 
             {
-                bool terminalPass = Equals(history[plays - 1], 'p');                   // Checking if the last action was pass
-                bool doubleBet = history.Substring(plays - 2).Equals("bb");           // Checking if two back to back bets have been done
-                bool isPlayerCardHigher = cards[player] > cards[opponent];            // Checking if players card is higher than the opponents
-                if (terminalPass)                                                     // Check if iterminalPass is true 
-                    if (history.Equals("pp"))                                         // Check if it was two passes back to back 
-                        return isPlayerCardHigher ? 1 : -1;                           // (this results in the game ending and the player with the higher card winning 1 point)
-                    else                                                              // If it wasn't two passes it means the last player passed after a bet which ends the game
-                        return 1;
-                else if (doubleBet)                                                   // Checking if it was a double bet instead of the last action being a pass
-                    return isPlayerCardHigher ? 2 : -2;                               // if so we give the player with higher card 2 points
+                return game.getUtility();
             }
             // Get information set: player_id+player_card+history
-            string infoState = cards[player] + history;
+            string infoState = game.getInfoState
 
             // Get information set node or create it if nonexistant
             // check if infostate in nodemap
@@ -137,7 +124,7 @@ namespace tarik
                 node = nodeMap[infoState];
             }
             // For each action, recursively call cfr with additional history and probability
-            double[] strategy = node.getStrategy(player == 0 ? p0 : p1);
+            double[] strategy = node.getStrategy(cur_player == 0 ? p0 : p1);
             double[] util = new double[numActions];
             double nodeUtil = 0;
             for (int a = 0; a < numActions; ++a)
